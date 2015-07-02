@@ -120,10 +120,14 @@ if __name__ == "__main__":
 
     max_feat_len = max(map(len,feat_dict.values()))
     print max_feat_len
+    print map(len,feat_dict.values())
     del_items = []
     for prot, feat_lst in feat_dict.iteritems():
+        #if len(feat_lst) == max_feat_len:
+        #    print 'BLA' + prot, feat_lst
         if len(feat_lst) != max_feat_len:
             print "WARNING: %s is incomplete and will be ignored: " % prot#, feat_lst
+            #print feat_lst
             del_items.append(prot)
 
     for prot in del_items:
@@ -132,7 +136,8 @@ if __name__ == "__main__":
     print "WARNING: %d proteins will be ignored." % len(del_items) 
     
     #X_train, y_train, X_test, y_test = prepare_data.make_scikit_input_kcv(feat_dict, k=k, set_prefix='ind_set')
-    X_train, y_train, X_test, y_test = prepare_data.make_scikit_input_kcv(feat_dict, k=k, set_prefix='comb_set')
+    #X_train, y_train, X_test, y_test = prepare_data.make_scikit_input_kcv(feat_dict, k=k, set_prefix='comb_set')
+    X_train, y_train, X_test, y_test = prepare_data.make_scikit_input_kcv(feat_dict, k=k, set_prefix='pfam_set')
     #X_train, y_train, X_test, y_test = prepare_data.make_scikit_input_kcv(feat_dict, k=k)
 
     X, y = prepare_data.make_scikit_input(feat_dict)

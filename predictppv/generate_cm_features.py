@@ -62,8 +62,8 @@ def feat_avg_score(cmap, frac=1.0):
     
     # get indices of top ranked contacts
     idx_lst = np.argpartition(cmap, -N)[-N:]
-    print idx_lst
-    print cmap[idx_lst]
+    #print idx_lst
+    #print cmap[idx_lst]
     sc_avg = np.mean(cmap[idx_lst])
 
     return sc_avg
@@ -101,6 +101,9 @@ def feat_contact_order(cmap, score_threshold=0.2):
 
     L = cmap.shape[0]
     N = len(np.where(bool_cmap)[0])
+
+    if N == 0:
+        return 0.
     
     dist_to_diag = np.abs(np.add.outer(np.arange(L), -np.arange(L)))
     sum_seq_sep = np.sum(dist_to_diag[np.where(bool_cmap)])
@@ -176,6 +179,10 @@ def feat_numc_diag(cmap, diaglen=21, score_threshold=0.2):
     # normalize by number of diagonal elements for all contacts
     bool_cmap = cmap > score_threshold
     N = len(np.where(bool_cmap)[0])
+
+    if N == 0:
+        return 0.
+
     n_diag = diaglen-1.
 
     return nd / (N * n_diag)
@@ -196,7 +203,7 @@ def feat_mcl(cmap, path_to_cmap):
 
 
 
-def main(path_to_cmap, th=0.2, frac=1.0):
+def main(path_to_cmap, th=0.2, frac=1.0, start=0, end=-1):
 
     # guessing separator of constraint file
     with open(path_to_cmap) as cmap_file:
@@ -211,22 +218,28 @@ def main(path_to_cmap, th=0.2, frac=1.0):
         clist = parse_contacts.parse(cmap_file, sep, min_dist=5)
     cmap = parse_contacts.get_numpy_cmap(clist)
 
-    #gt = []
-    #gt_norm = []
-    #for i in range(1, 10):
-    #    th_gt = i/10.0
-    #    gt.append(feat_score_gt(cmap, score_threshold=th_gt))
-    #    gt_norm.append(feat_score_gt_norm(cmap, score_threshold=th_gt))
-    #max = feat_max_score(cmap)
-    #avg = feat_avg_score(cmap, frac=frac)
+    if end == -1:
+        end = cmap.shape[0]
+    cmap = cmap[start:end]
+
+    gt = []
+    gt_norm = []
+    for i in range(1, 10):
+        th_gt = i/10.0
+        gt.append(feat_score_gt(cmap, score_threshold=th_gt))
+        gt_norm.append(feat_score_gt_norm(cmap, score_threshold=th_gt))
+    max = feat_max_score(cmap)
+    avg = feat_avg_score(cmap, frac=frac)
     
     co = feat_contact_order(cmap, score_threshold=th)
     nw = feat_numc_window(cmap, score_threshold=th)
     nd = feat_numc_diag(cmap, score_threshold=th)
     #mcl = feat_mcl(cmap, path_to_cmap)
     #print "#Columns are: ntop0.1-0.9, gt_norm0.1-0.9, max, avg, co, nw0-9, nd1-10"
-    #print path_to_cmap, ' '.join(map(str,gt)), ' '.join(map(str,gt_norm)), max, avg, co, ' '.join(map(str,nw)), ' '.join(map(str,nd))
-    print path_to_cmap, co, ' '.join(map(str,nw)), ' '.join(map(str,nd))
+    print len([path_to_cmap] + list(gt) + list(gt_norm) + [max] + [avg] + [co] + list(nw) + list(nd))
+    print path_to_cmap, ' '.join(map(str,gt)), ' '.join(map(str,gt_norm)), max, avg, co, ' '.join(map(str,nw)), ' '.join(map(str,nd))
+
+    #print path_to_cmap, co, ' '.join(map(str,nw)), ' '.join(map(str,nd))
     #return np.array(np.hstack((gt, gt_norm, max, avg, co, nw, nd)))
 
 
