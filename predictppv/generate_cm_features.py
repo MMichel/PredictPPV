@@ -189,20 +189,6 @@ def feat_numc_diag(cmap, diaglen=21, score_threshold=0.2):
 
 
 
-
-
-def feat_mcl(cmap, path_to_cmap):
-
-    """ Get cluster features from MCL clustering. Runs MCL clustering
-    if not yet done.
-    @param  cmap            contact map
-    @param  path_to_cmap    path to contact map
-    @return mcl             array of MCL cluster features
-    """
-    pass
-
-
-
 def main(path_to_cmap, th=0.2, frac=1.0, start=0, end=-1):
 
     # guessing separator of constraint file
@@ -214,13 +200,12 @@ def main(path_to_cmap, th=0.2, frac=1.0, start=0, end=-1):
             sep = ' '
         else:
             sep = '\t'
-
         clist = parse_contacts.parse(cmap_file, sep, min_dist=5)
     cmap = parse_contacts.get_numpy_cmap(clist)
 
     if end == -1:
         end = cmap.shape[0]
-    cmap = cmap[start:end]
+    cmap = cmap[start:end, start:end]
 
     gt = []
     gt_norm = []
@@ -234,9 +219,8 @@ def main(path_to_cmap, th=0.2, frac=1.0, start=0, end=-1):
     co = feat_contact_order(cmap, score_threshold=th)
     nw = feat_numc_window(cmap, score_threshold=th)
     nd = feat_numc_diag(cmap, score_threshold=th)
-    #mcl = feat_mcl(cmap, path_to_cmap)
     #print "#Columns are: ntop0.1-0.9, gt_norm0.1-0.9, max, avg, co, nw0-9, nd1-10"
-    print len([path_to_cmap] + list(gt) + list(gt_norm) + [max] + [avg] + [co] + list(nw) + list(nd))
+    #print len([path_to_cmap] + list(gt) + list(gt_norm) + [max] + [avg] + [co] + list(nw) + list(nd))
     print path_to_cmap, ' '.join(map(str,gt)), ' '.join(map(str,gt_norm)), max, avg, co, ' '.join(map(str,nw)), ' '.join(map(str,nd))
 
     #print path_to_cmap, co, ' '.join(map(str,nw)), ' '.join(map(str,nd))
@@ -247,5 +231,7 @@ if __name__ == "__main__":
 
     path_to_cmap = sys.argv[1]
     th = float(sys.argv[2])
-    feat_arr = main(path_to_cmap, th=th)
+    start = int(sys.argv[3])
+    end = int(sys.argv[4])
+    feat_arr = main(path_to_cmap, th=th, start=start, end=end)
     #print feat_arr

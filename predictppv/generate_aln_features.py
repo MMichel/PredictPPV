@@ -69,7 +69,7 @@ def get_numseq_id(filename, identity=0.9):
 
     cdhit_fname = filename + '.cd%s.clstr' % int(identity * 100)
     if not os.path.isfile(cdhit_fname):
-        sys.stderr.write("File %s does not exist.\nPlease run CD-HIT (automatically ran by PconsC3) on %s.\n" % (cdhit_fname, filename))
+        sys.stderr.write("File %s does not exist.\nPlease run CD-HIT (automatically run by PconsC3) on %s.\n" % (cdhit_fname, filename))
         sys.exit(1)
     cdhit_clst = [l for l in open(cdhit_fname).readlines() if l.startswith('>')]
     return len(cdhit_clst)
@@ -79,7 +79,7 @@ def get_meff(filename):
     
     meff_fname = '.'.join(filename.split('.')[:-1]) + '.gneff'
     if not os.path.isfile(meff_fname):
-        sys.stderr.write("File %s does not exist.\nPlease run GaussDCA (automatically ran by PconsC3) on %s.\n" % (meff_fname, filename))
+        sys.stderr.write("File %s does not exist.\nPlease run GaussDCA (automatically run by PconsC3) on %s.\n" % (meff_fname, filename))
         sys.exit(1)
     # File content looks for example like this:
     # theta = 0.3862907131851712 threshold = 50.0
@@ -112,4 +112,6 @@ def main(path_to_aln, cov=0.9, id=0.9, start=0, end=-1):
 
 if __name__ == "__main__":
     path_to_aln = sys.argv[1]
-    main(path_to_aln, cov=0.9, id=0.9)
+    start = int(sys.argv[2])
+    end = int(sys.argv[3])
+    main(path_to_aln, cov=0.9, id=0.9, start=start, end=end)
