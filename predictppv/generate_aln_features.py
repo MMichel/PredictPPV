@@ -85,7 +85,10 @@ def get_meff(filename):
     # theta = 0.3862907131851712 threshold = 50.0
     # M = 65522 N = 130 Meff = 1367.7051932101365
     # MeffPerPos = [...]
-    meff = open(meff_fname).readlines()[1].split()[-1]
+    with open(meff_fname) as f:
+        for l in f:
+            if 'Meff =' in l:
+                meff = l.split()[-1]
     return float(meff)
 
 
@@ -112,6 +115,9 @@ def main(path_to_aln, cov=0.9, id=0.9, start=0, end=-1):
 
 if __name__ == "__main__":
     path_to_aln = sys.argv[1]
-    start = int(sys.argv[2])
-    end = int(sys.argv[3])
-    main(path_to_aln, cov=0.9, id=0.9, start=start, end=end)
+    if len(sys.argv) > 2:
+        start = int(sys.argv[2])
+        end = int(sys.argv[3])
+        main(path_to_aln, cov=0.9, id=0.9, start=start, end=end)
+    else:
+        main(path_to_aln, cov=0.9, id=0.9)

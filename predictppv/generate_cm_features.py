@@ -30,7 +30,7 @@ def feat_score_gt_norm(cmap, score_threshold=0.2):
     """
 
     L = cmap.shape[0]
-    N_norm = feat_score_gt(cmap, score_threshold) / float(L)
+    N_norm = feat_score_gt(cmap, score_threshold) / (float(L)*float(L))
 
     return N_norm
 
@@ -231,7 +231,10 @@ if __name__ == "__main__":
 
     path_to_cmap = sys.argv[1]
     th = float(sys.argv[2])
-    start = int(sys.argv[3])
-    end = int(sys.argv[4])
-    feat_arr = main(path_to_cmap, th=th, start=start, end=end)
+    if len(sys.argv) > 3:
+        start = int(sys.argv[3])
+        end = int(sys.argv[4])
+        feat_arr = main(path_to_cmap, th=th, start=start, end=end)
+    else:
+        feat_arr = main(path_to_cmap, th=th)
     #print feat_arr
