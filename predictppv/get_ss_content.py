@@ -21,8 +21,11 @@ def main(infile):
 if __name__ == "__main__":
 
     #all_freq = []
+    if len(sys.argv) < 2:
+        sys.stderr.write("Usage: python %s <psipred_horiz file 1, ..., n> <outfile>\n" % sys.argv[0])
+        sys.exit(1)
     if sys.argv[-1].endswith("horiz") or sys.argv[-1].endswith("ss") or sys.argv[-1].endswith("ss2"):
-        sys.stderr.write("It seems you forgot to specify an output file path.\nUsage: python %s <psipred_horiz file 1, ..., n> <outfile>")
+        sys.stderr.write("It seems you forgot to specify an output file path.\nUsage: python %s <psipred_horiz file 1, ..., n> <outfile>\n" % sys.argv[0])
         sys.exit(1)
     outfile = open(sys.argv[-1], 'w')
 
