@@ -64,11 +64,19 @@ def get_numseq_id(filename, identity=0.9):
 def get_numseq_id(filename, identity=0.9):
 
     cdhit_fname = filename + '.cd%s.clstr' % int(identity * 100)
-    if not os.path.isfile(cdhit_fname):
+    stats_fname = '.'.join(filename.split('.')[:-1] + '.stats')
+    if os.path.isfile(cdhit_fname):
+        cdhit_clst = [l for l in open(cdhit_fname).readlines() if l.startswith('>')]
+        numseq_id = len(cdhit_clst)
+    elif os.path.isfile(stats_fname):
+        with open(stats_fname) as f:
+            for l in f:
+                if 'Count at %s' % int(identity * 100) in l:
+                    numseq_id = int(l.split()[-1])
+    else:
         sys.stderr.write("File %s does not exist.\nPlease run CD-HIT (automatically ran by PconsC3) on %s.\n" % (cdhit_fname, filename))
         sys.exit(1)
-    cdhit_clst = [l for l in open(cdhit_fname).readlines() if l.startswith('>')]
-    return len(cdhit_clst)
+    return numseq_id
 
 
 def get_meff(filename):
