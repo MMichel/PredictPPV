@@ -15,14 +15,18 @@ def get_seqlen(filename):
     return L
 
 
-def get_numseq_coverage(filename, coverage=0.9):
+def get_numseq_coverage(filename, coverage=0.9, start=0, end=-1):
     L = get_seqlen(filename)
+    if end == -1:
+        end = L
+    L = L - (start + (L - end))
     #print L
     N = 0
     alifile = open(filename, 'r')
     for line in alifile:
         if line.startswith('>'):
             continue
+        line = line[start:end]
         frac_gaps = 0.
         ngaps = line.count('-')
         frac_gaps += ngaps/float(L)
@@ -83,19 +87,27 @@ def get_meff(filename):
     
     meff_fname = '.'.join(filename.split('.')[:-1]) + '.gneff'
     if not os.path.isfile(meff_fname):
-        sys.stderr.write("File %s does not exist.\nPlease run GaussDCA (automatically ran by PconsC3) on %s.\n" % (meff_fname, filename))
+        sys.stderr.write("File %s does not exist.\nPlease run GaussDCA (automatically run by PconsC3) on %s.\n" % (meff_fname, filename))
         sys.exit(1)
     # File content looks for example like this:
     # theta = 0.3862907131851712 threshold = 50.0
     # M = 65522 N = 130 Meff = 1367.7051932101365
-    meff = open(meff_fname).readlines()[-1].split()[-1]
+    # MeffPerPos = [...]
+    with open(meff_fname) as f:
+        for l in f:
+            if 'Meff =' in l:
+                meff = l.split()[-1]
     return float(meff)
 
 
-def main(path_to_aln, cov=0.9, id=0.9):
+def main(path_to_aln, cov=0.9, id=0.9, start=0, end=-1):
 
     seqlen = get_seqlen(path_to_aln) 
-    ncov = get_numseq_coverage(path_to_aln, coverage=cov)
+    if end == -1:
+        end = seqlen
+    seqlen = seqlen - (start + (seqlen - end))
+
+    ncov = get_numseq_coverage(path_to_aln, coverage=cov, start=start, end=end)
     ncov_log10 = math.log10(ncov)
     nid = get_numseq_id(path_to_aln, identity=id)
     nid_log10 = math.log10(nid)
@@ -111,4 +123,9 @@ def main(path_to_aln, cov=0.9, id=0.9):
 
 if __name__ == "__main__":
     path_to_aln = sys.argv[1]
-    main(path_to_aln, cov=0.9, id=0.9)
+    if len(sys.argv) > 2:
+        start = int(sys.argv[2])
+        end = int(sys.argv[3])
+        main(path_to_aln, cov=0.9, id=0.9, start=start, end=end)
+    else:
+        main(path_to_aln, cov=0.9, id=0.9)

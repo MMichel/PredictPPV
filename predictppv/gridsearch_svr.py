@@ -12,6 +12,7 @@ from sklearn.metrics import r2_score
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import StandardScaler
 from sklearn.externals import joblib
+from sklearn.metrics import roc_curve, auc
 
 import prepare_data
 
@@ -120,10 +121,14 @@ if __name__ == "__main__":
 
     max_feat_len = max(map(len,feat_dict.values()))
     print max_feat_len
+    print map(len,feat_dict.values())
     del_items = []
     for prot, feat_lst in feat_dict.iteritems():
+        #if len(feat_lst) == max_feat_len:
+        #    print 'BLA' + prot, feat_lst
         if len(feat_lst) != max_feat_len:
             print "WARNING: %s is incomplete and will be ignored: " % prot#, feat_lst
+            #print feat_lst
             del_items.append(prot)
 
     for prot in del_items:
@@ -132,7 +137,9 @@ if __name__ == "__main__":
     print "WARNING: %d proteins will be ignored." % len(del_items) 
     
     #X_train, y_train, X_test, y_test = prepare_data.make_scikit_input_kcv(feat_dict, k=k, set_prefix='ind_set')
-    X_train, y_train, X_test, y_test = prepare_data.make_scikit_input_kcv(feat_dict, k=k, set_prefix='comb_set')
+    #X_train, y_train, X_test, y_test = prepare_data.make_scikit_input_kcv(feat_dict, k=k, set_prefix='comb_set')
+    X_train, y_train, X_test, y_test = prepare_data.make_scikit_input_kcv(feat_dict, k=k, set_prefix='pfam_set')
+    #X_train, y_train, X_test, y_test = prepare_data.make_scikit_input_kcv(feat_dict, k=k, set_prefix='pfam_set_done')
     #X_train, y_train, X_test, y_test = prepare_data.make_scikit_input_kcv(feat_dict, k=k)
 
     X, y = prepare_data.make_scikit_input(feat_dict)
@@ -195,6 +202,19 @@ if __name__ == "__main__":
     pl.legend(loc=2, prop={'size':10})
     pl.savefig(sys.argv[-1] + '_cv.png')
     #pl.show()
+    pl.close()
+
+    fpr, tpr, _ = roc_curve((y_train_np >= 0.5).ravel(), y_cv.ravel())
+    roc_auc = auc(fpr, tpr)
+    pl.figure()
+    pl.plot(fpr, tpr, label='ROC curve (area = %0.2f)' % roc_auc)
+    pl.xlim([0.0, 1.0])
+    pl.ylim([0.0, 1.05])
+    pl.xlabel('False Positive Rate')
+    pl.ylabel('True Positive Rate')
+    pl.title('Receiver operating characteristic')
+    pl.legend(loc="lower right")
+    pl.savefig(sys.argv[-1] + '_cv_roc.png')
     pl.close()
 
     fold_lst = range(1,k+1)
